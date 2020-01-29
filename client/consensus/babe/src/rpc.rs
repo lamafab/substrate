@@ -46,14 +46,20 @@ pub trait Babe {
 /// RPC handler for Babe
 /// provides `babe_epochAuthorship` method for querying slot authorship data.
 struct BabeRPC<B: BlockT, C> {
+	/// shared refernce to the client.
 	client: Arc<C>,
+	/// shared reference to EpochChanges
 	shared_epoch_changes: SharedEpochChanges<B>,
+	/// shared reference to the Keystore
 	keystore: KeyStorePtr,
+	/// config (actually holds the slot duration)
 	babe_config: Config,
+	/// threadpool for spwaning cpu bound tasks.
 	threadpool: ThreadPool,
 }
 
 impl<B: BlockT, C> BabeRPC<B, C> {
+	/// creates a new instance of the BabeRpc handler.
 	pub fn new(
 		client: Arc<C>,
 		shared_epoch_changes: SharedEpochChanges<B>,
@@ -188,6 +194,7 @@ impl From<Error> for jsonrpc_core::Error {
 	}
 }
 
+/// fetches the epoch data for a given slot_number.
 fn epoch_data<B, C>(
 	epoch_changes: &SharedEpochChanges<B>,
 	client: &Arc<C>,

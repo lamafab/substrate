@@ -39,6 +39,8 @@ fn make_pre_digest(
 		slot_number,
 		vrf_output,
 		vrf_proof,
+		// irrelevant in this test
+		threshold: 0,
 	};
 	let log = DigestItem::PreRuntime(sp_consensus_babe::BABE_ENGINE_ID, digest_data.encode());
 	Digest { logs: vec![log] }

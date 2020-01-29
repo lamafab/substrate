@@ -45,7 +45,7 @@ pub enum BabePreDigest {
 	/// A primary VRF-based slot assignment.
 	Primary {
 		/// epoch threshold
-		threshold: Option<u128>,
+		threshold: u128,
 		/// VRF output
 		vrf_output: VRFOutput,
 		/// VRF proof
@@ -101,6 +101,8 @@ pub enum RawBabePreDigest {
 	/// A primary VRF-based slot assignment.
 	#[codec(index = "1")]
 	Primary {
+		/// slot threshold
+		threshold: u128,
 		/// Authority index
 		authority_index: AuthorityIndex,
 		/// Slot number
@@ -144,9 +146,10 @@ impl Encode for BabePreDigest {
 				vrf_proof,
 				authority_index,
 				slot_number,
-				..
+				threshold,
 			} => {
 				RawBabePreDigest::Primary {
+					threshold: *threshold,
 					vrf_output: *vrf_output.as_bytes(),
 					vrf_proof: vrf_proof.to_bytes(),
 					authority_index: *authority_index,
@@ -175,7 +178,13 @@ impl codec::EncodeLike for BabePreDigest {}
 impl Decode for BabePreDigest {
 	fn decode<R: Input>(i: &mut R) -> Result<Self, Error> {
 		let pre_digest = match Decode::decode(i)? {
-			RawBabePreDigest::Primary { vrf_output, vrf_proof, authority_index, slot_number } => {
+			RawBabePreDigest::Primary {
+				vrf_output,
+				vrf_proof,
+				authority_index,
+				slot_number,
+				threshold
+			} => {
 				// Verify (at compile time) that the sizes in babe_primitives are correct
 				let _: [u8; super::VRF_OUTPUT_LENGTH] = vrf_output;
 				let _: [u8; super::VRF_PROOF_LENGTH] = vrf_proof;
@@ -185,7 +194,7 @@ impl Decode for BabePreDigest {
 					vrf_output: VRFOutput::from_bytes(&vrf_output).map_err(convert_error)?,
 					authority_index,
 					slot_number,
-					threshold: None,
+					threshold,
 				}
 			},
 			RawBabePreDigest::Secondary { authority_index, slot_number } => {

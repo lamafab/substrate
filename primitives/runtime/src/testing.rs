@@ -161,7 +161,6 @@ pub struct Header {
 	/// Merkle root of block's extrinsics
 	pub extrinsics_root: H256,
 	/// Digest items
-	#[ignore_malloc_size_of = "TODO"]
 	pub digest: Digest,
 }
 
@@ -303,14 +302,8 @@ impl<'a, Xt> Deserialize<'a> for Block<Xt> where Block<Xt>: Decode {
 #[derive(PartialEq, Eq, Clone, Encode, Decode)]
 pub struct TestXt<Call, Extra>(pub Option<(u64, Extra)>, pub Call);
 
-#[cfg(feature = "std")]
-impl<Call, Extra> parity_util_mem::MallocSizeOf for TestXt<Call, Extra>
-{
-	fn size_of(&self, _ops: &mut parity_util_mem::MallocSizeOfOps) -> usize {
-		// Non-opaque extrinsics always 0 (TODO: check if needed)
-		0
-	}
-}
+// Only used in tests, size doesn't matter
+parity_util_mem::malloc_size_of_is_0!(TestXt<Call, Extra>);
 
 impl<Call, Extra> Serialize for TestXt<Call, Extra> where TestXt<Call, Extra>: Encode {
 	fn serialize<S>(&self, seq: S) -> Result<S::Ok, S::Error> where S: Serializer {

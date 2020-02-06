@@ -224,7 +224,7 @@ impl<'a> Deserialize<'a> for Header {
 pub struct ExtrinsicWrapper<Xt>(Xt);
 
 impl<Xt> traits::Extrinsic for ExtrinsicWrapper<Xt>
-where Xt: parity_util_mem::MallocSizeOf
+	where Xt: parity_util_mem::MallocSizeOf
 {
 	type Call = ();
 	type SignaturePayload = ();
